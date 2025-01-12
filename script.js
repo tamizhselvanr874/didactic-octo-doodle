@@ -13,11 +13,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addPromptButton = document.getElementById('add-prompt-button');
 
   
-    const azureEndpoint = "https://afs.openai.azure.com/";  
-    const apiKey = "a9c9ed4ede724626a6bfddff2c717817";  
-    const apiVersion = "2024-10-01-preview";  
-    const model = "gpt-4o-mini";  
-    const IMAGE_GENERATION_URL = "https://afsimage.azurewebsites.net/api/httpTriggerts";  
+require('dotenv').config();
+
+const azureEndpoint = process.env.AZURE_ENDPOINT;
+const apiKey = process.env.API_KEY;
+const apiVersion = process.env.API_VERSION;
+const model = process.env.MODEL;
+const IMAGE_GENERATION_URL = process.env.IMAGE_GENERATION_URL;
   
     let messages = [];  
     let finalPrompt = null;  
@@ -418,20 +420,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }  
     }  
   
-    // Fetch existing prompts from the server and render them  
-    try {  
-        const response = await fetch('http://localhost:3000/api/getPrompts');  
-        if (response.ok) {  
-            const prompts = await response.json();  
-            prompts.forEach(prompt => {  
-                renderPromptCategory(prompt.categoryName, prompt.itemNames, prompt.itemDescriptions);  
-            });  
-        } else {  
-            console.error('Failed to fetch prompts');  
-        }  
-    } catch (error) {  
-        console.error('Error fetching prompts:', error);  
-    }  
+// Fetch existing prompts from the server and render them  
+try {  
+  const response = await fetch('https://orange-field-0f73bd20f.4.azurestaticapps.net/api/getPrompts');  
+  if (response.ok) {  
+    const prompts = await response.json();  
+    prompts.forEach(prompt => {  
+      renderPromptCategory(prompt.categoryName, prompt.itemNames, prompt.itemDescriptions);  
+    });  
+  } else {  
+    console.error('Failed to fetch prompts');  
+  }  
+} catch (error) {  
+  console.error('Error fetching prompts:', error);  
+} 
   
     // Function to render a prompt category  
     async function renderPromptCategory(categoryName, itemNames, itemDescriptions) {  
@@ -480,45 +482,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         }  
     });  
   
-    // Add Prompt Button functionality  
-    addPromptButton.addEventListener('click', async () => {  
-        const categoryName = window.prompt("Enter Category Name (e.g., Animals, Objects, Nature):");  
-        if (!categoryName) return;  
+// Add Prompt Button functionality  
+addPromptButton.addEventListener('click', async () => {  
+  const categoryName = window.prompt("Enter Category Name (e.g., Animals, Objects, Nature):");  
+  if (!categoryName) return;  
   
-        const numberOfItems = parseInt(window.prompt("Enter Number of Items to Add:"), 10);  
-        if (isNaN(numberOfItems) || numberOfItems <= 0) return;  
+  const numberOfItems = parseInt(window.prompt("Enter Number of Items to Add:"), 10);  
+  if (isNaN(numberOfItems) || numberOfItems <= 0) return;  
   
-        let itemNames = [];  
-        for (let i = 0; i < numberOfItems; i++) {  
-            const itemName = window.prompt(`Enter Name for Item ${i + 1}:`);  
-            if (!itemName) return;  
-            itemNames.push(itemName);  
-        }  
+  let itemNames = [];  
+  for (let i = 0; i < numberOfItems; i++) {  
+    const itemName = window.prompt(`Enter Name for Item ${i + 1}:`);  
+    if (!itemName) return;  
+    itemNames.push(itemName);  
+  }  
   
-        let itemDescriptions = [];  
-        for (let i = 0; i < numberOfItems; i++) {  
-            const itemDescription = window.prompt(`Enter Description for Item ${i + 1}:`);  
-            if (!itemDescription) return;  
-            itemDescriptions.push(itemDescription);  
-        }  
+  let itemDescriptions = [];  
+  for (let i = 0; i < numberOfItems; i++) {  
+    const itemDescription = window.prompt(`Enter Description for Item ${i + 1}:`);  
+    if (!itemDescription) return;  
+    itemDescriptions.push(itemDescription);  
+  }  
   
-        // Save prompt to the server  
-        try {  
-            const response = await fetch('https://nopromptgen.azurewebsites.net/api/httpTrigger1?method=savePrompt', {  
-                method: 'POST',  
-                headers: { 'Content-Type': 'application/json' },  
-                body: JSON.stringify({ categoryName, itemNames, itemDescriptions })  
-            });  
-
-            if (response.ok) {  
-                renderPromptCategory(categoryName, itemNames, itemDescriptions);  
-            } else {  
-                console.error('Failed to save prompt');  
-            }  
-        } catch (error) {  
-            console.error('Error saving prompt:', error);  
-        }  
+  // Save prompt to the server  
+  try {  
+    const response = await fetch('https://orange-field-0f73bd20f.4.azurestaticapps.net/api/savePrompt', {  
+      method: 'POST',  
+      headers: { 'Content-Type': 'application/json' },  
+      body: JSON.stringify({ categoryName, itemNames, itemDescriptions })  
     });  
+  
+    if (response.ok) {  
+      renderPromptCategory(categoryName, itemNames, itemDescriptions);  
+    } else {  
+      console.error('Failed to save prompt');  
+    }  
+  } catch (error) {  
+    console.error('Error saving prompt:', error);  
+  }  
+});   
   
     // Function to generate an icon code based on user preference  
     async function icon_code_generation(iconPreference) {  
